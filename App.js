@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, TouchableOpacity } from 'react-native';
+import { Text, View, TouchableOpacity, FlatList } from 'react-native';
 import { Camera, Permissions, ImageManipulator } from 'expo';
 
 const Clarifai = require('clarifai');
@@ -9,7 +9,7 @@ const clarifai = new Clarifai.App({
 });
 process.nextTick = setImmediate;
 
-export default class CameraExample extends React.Component {
+export default class App extends React.Component {
   state = {
     hasCameraPermission: null,
     predictions: [],
@@ -47,8 +47,7 @@ export default class CameraExample extends React.Component {
   };
 
   render() {
-    console.log('predictions', this.state.predictions);
-    const { hasCameraPermission } = this.state;
+    const { hasCameraPermission, predictions } = this.state;
     if (hasCameraPermission === null) {
       return <View />;
     } else if (hasCameraPermission === false) {
@@ -67,22 +66,36 @@ export default class CameraExample extends React.Component {
               style={{
                 flex: 1,
                 backgroundColor: 'transparent',
-                flexDirection: 'row',
+                flexDirection: 'column',
+                justifyContent: 'flex-end'
               }}
             >
-              <TouchableOpacity
+              <View
                 style={{
                   flex: 1,
-                  alignSelf: 'flex-end',
+                  alignSelf: 'flex-start',
+                  alignItems: 'center',
+                }}
+              >
+                <FlatList
+                  data={predictions.map(prediction => ({
+                    key: `${prediction.name} ${prediction.value}`,
+                  }))}
+                  renderItem={({ item }) => (
+                    <Text style={{ paddingLeft: 15, color: 'white', fontSize: 20 }}>{item.key}</Text>
+                  )}
+                />
+              </View>
+              <TouchableOpacity
+                style={{
+                  flex: 0.1,
                   alignItems: 'center',
                   backgroundColor: 'blue',
-                  height: '10%'
+                  height: '10%',
                 }}
                 onPress={this.objectDetection}
               >
-                <Text
-                  style={{ fontSize: 30, color: 'white', padding: 15 }}
-                >
+                <Text style={{ fontSize: 30, color: 'white', padding: 15 }}>
                   {' '}
                   Detect Objects{' '}
                 </Text>
